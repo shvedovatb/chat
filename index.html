@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+</head>
+<body>
+	<div class="container">
+		<header>
+			<div class="row">
+				<div class="profile">
+					<div class="col-sm-3">
+						<div class="time">
+							<span id="onlineTime"></span>
+							<span id="localTime"></span>							
+						</div>
+						<div class="personal">
+							<a href="">Edit personal info</a>
+							<a href="">Private messages ()</a>
+						</div>
+					</div>
+					<div class="col-sm-9">
+						<div class="logo">
+							<img src="img/logo.png" alt="">
+						</div>
+					</div>
+				</div>
+			</div>
+		</header>
+		<div class="row">
+			<div class="main">
+				<div class="col-sm-3">
+					<div class="me">
+						<label for="myName">Enter your name</label>
+						<input type="text" id="myName">
+					</div>
+					<span id="companionsOnline"></span>
+					<div class="companions" >
+						<ul class="listUsers" id="companions">
+						</ul>
+					</div>
+				</div>
+				<div class="col-sm-9">
+					<div class="chat">
+						<ul>
+							<li class="tab active"><a>Main chat</a></li>
+							<li class="tab"><a>Chat with Iren</a></li>
+						</ul>
+						<div class="tab_cont">
+							<div id="tab1" class="cont current">							
+								<p><b>John Smith: </b>Lets go to the cinema this friday</p>							
+								<p><b>Annabel Stone: </b>I can't. I'm sick</p>							
+								<p><b>John Smith: </b>Oh, can I help you?</p>
+							</div>
+							<div id="tab2" class="cont">
+								
+							</div>
+						</div>
+					</div>
+					<div class="message">
+						<form action="">
+							<textarea name="messageInput" id="messageInput" rows="5"></textarea>
+							<div class="edit">
+								<span><a id="bold" title="Bold"><i class="icon-bold"></i></a></span>
+								<span><a id="italic" title="Italic"><i class="icon-italic"></i></a></span>
+								<span><a id="underline" title="Underline"><i class="icon-underline"></i></a></span>
+								<span><a id="link" title="Link"><i class="icon-edit"></i></a></span>
+							</div>
+							<button type="button" name="sendMessage">Send message</button>
+						</form>
+					</div>
+					<div class="message_info">
+						<ul>
+							<li><span id='chars'>0</span> characters entered</li>
+							<li><span id='letters'>0</span> letters entered</li>
+							<li><span id='spaces'>0</span> whitespace characters entered</li>
+							<li><span id='puncts'>0</span> punctuation marks entered</li>
+						</ul>						
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	
+</body>
+</html>
