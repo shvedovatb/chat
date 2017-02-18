@@ -1,20 +1,34 @@
 "use strict";
-	var users = require('./data/users');  // Подключение самостоятельно созданного модуля "users"
+var users = {
+  "data": [
+    {"name":"Jim Smith", "status":"Active"},
+    {"name":"Iren Dou", "status":"Active"},
+    {"name":"Annabel Stone", "status":"Active"},
+    {"name":"Bryan Byrd", "status":"Suspended"},
+    {"name":"John Snow", "status":"Active"},
+    {"name":"Andrew Simpson", "status":"Active"},
+    {"name":"Alison Black", "status":"Active"},
+    {"name":"Sasha Stuart", "status":"Suspended"}
+  ]
 
+}
+/*Вычисление текущего времени*/
 function currentTime() {
 	var locTime=new Date();
 	var hours=locTime.getHours();
 	var minutes=locTime.getMinutes();
 	minutes=checkTime(minutes);
-	var currentStr='Your local time  is: '+hours+"h "+minutes+'m';
+	var currentStr='Your local time is: '+hours+"h "+minutes+'m';
 	return currentStr;
 }
+/*добавляем 0 перед одноциферным временем: 07:01*/
 function checkTime(i){
 	if (i<10) {
 		i="0" + i;
 	}
 	return i;
 }
+/*Вычисление времени пользователя в чате*/
 function onlineTime() {
 	var lastTime=new Date();
 	var myTime=lastTime-startTime;
@@ -27,20 +41,22 @@ function onlineTime() {
 	var onlineStr='You are online for: '+hours+'h '+minutes+'m';
 	return onlineStr;
 }
-function setMyTime() {
+/*Вывод текущего времени и времени на странице, обновление по таймауту*/
+function outputMyTime() {
 	document.getElementById('localTime').innerHTML=currentTime();
 	document.getElementById('onlineTime').innerHTML=onlineTime();
-	setTimeout('setMyTime()', 10000);
+	setTimeout('outputMyTime()', 10000);
 }
-
+/*подсчет символов соответствующих рег. выражению*/
 function counter(string, reg) {
 	var count = (string.match(reg)!=null) ? string.match(reg).length : 0;
 	return count;
 }
-
+/*Отправка сообщения*/
 function sendMessage() {	
 	var input = document.getElementById('messageInput')
 	var text = input.value;
+	if (text=='') return;
 	var author = document.getElementById('myName').value;
 	if (!author) {
 		author = 'MySelf';
@@ -53,32 +69,55 @@ function sendMessage() {
 	document.getElementById('spaces').innerHTML='0';
 	document.getElementById('puncts').innerHTML='0';
 }
-
-function selectTab() {
+/*переключение вкладок*/
+function selectTab(obj) {
 	var tabs = document.querySelectorAll('.tab');
 	var conts = document.querySelectorAll('.cont');
-	//alert( tabs.length);
 	for (var i = 0; i < tabs.length; i++) {
-		tabs[i].addEventListener('click', function(e) { 
-			for (var k = 0; k < tabs.length; k++) {
-				if (this == tabs[k]) {
-					conts[k].classList.add('current');
-					tabs[k].classList.add('active');
-				} else {
-					conts[k].classList.remove('current');
-					tabs[k].classList.remove('active');
-				}
-			}
-		})
+		if (obj == tabs[i]) {
+			conts[i].classList.add('current');
+			tabs[i].classList.add('active');
+		} else {
+			conts[i].classList.remove('current');
+			tabs[i].classList.remove('active');
+		}
 	}
 }
-
+function deleteTab(obj) {
+	var tabs = document.querySelectorAll('.tab');
+	var conts = document.querySelectorAll('.cont');
+	for (var i = 0; i < tabs.length; i++) {
+		if (obj == tabs[i]) {
+			if(tabs[i].classList.contains('active')){
+				conts[0].classList.add('current');
+				tabs[0].classList.add('active');				
+			}
+			tabs[i].parentNode.removeChild(tabs[i]);
+			conts[i].parentNode.removeChild(conts[i]);
+		}
+	}
+}
+/*подсчет пользователей онлайн*/
 function companionsOnline() {
 	var count = document.getElementById('companions').getElementsByTagName('li').length;
 	document.getElementById('companionsOnline').innerHTML = 'Online: '+count;
 	setTimeout('companionsOnline()', 10000);
 }
-
+/*вывод списка пользователей онлайн*/
+function usersData() {
+	users.data.forEach(function (obj) {
+		var ul = document.getElementById('companions');
+		ul.innerHTML += `<li class="${obj.status}"><a onclick="newTabAdd(this.innerHTML)">${obj.name}</a></li>`;
+	})
+}
+/*Добавление вкладки при клике по пользователю*/
+function newTabAdd(name) {
+	var tabNames = document.getElementById('listTabName');
+	var content = document.getElementById('listTabContent');
+	tabNames.innerHTML += `<li class="tab"><a onclick="selectTab(this.parentNode)">${name}</a><a onclick="deleteTab(this.parentNode)"><i class="icon-remove-sign"></i></a></li>`;
+	content.innerHTML += `<div class = "cont"></div>`;
+}
+/*Добавляем красивости для сообщения (курсив, подчеркивание, ссылка*/
 function tagAdd(obj, str1, str2) {  
     if(document.selection) {                                                                          // Для IE 
         var s = document.selection.createRange(); 
@@ -98,21 +137,11 @@ function tagAdd(obj, str1, str2) {
             obj.value = obj.value + str1 + str2 
         } 
     } 
-}
-function usersData() {
-	users.data.forEach(
-  function (obj) {
-    var ul = document.getElementById('companions');
-    ul.innerHTML += `<li class="${obj.status}"><a>${obj.name}</a></li>`;
-  }
-)
-
-}
+} 
 
 var startTime=new Date();
 window.onload = function(){	
-	setMyTime();	
-	selectTab();
+	outputMyTime();	
 	usersData();
 	companionsOnline();
 };

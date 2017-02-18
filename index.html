@@ -2,7 +2,12 @@
 <html lang="en">
 <head>
 	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>Document</title>
+	<link rel="stylesheet" href="css/style.css">
+	<link rel="stylesheet" href="css/bootstrap-grid.min.css">
+	<link rel="stylesheet" href="css/media.css">
+	<link rel="stylesheet" href="fonts/font-awesome/css/font-awesome.min.css">
 </head>
 <body>
 	<div class="container">
@@ -21,7 +26,7 @@
 					</div>
 					<div class="col-sm-9">
 						<div class="logo">
-							<img src="img/logo.png" alt="">
+							<img src="img/logo1.png" alt="">
 						</div>
 					</div>
 				</div>
@@ -37,24 +42,22 @@
 					<span id="companionsOnline"></span>
 					<div class="companions" >
 						<ul class="listUsers" id="companions">
+							
 						</ul>
 					</div>
 				</div>
 				<div class="col-sm-9">
 					<div class="chat">
-						<ul>
-							<li class="tab active"><a>Main chat</a></li>
-							<li class="tab"><a>Chat with Iren</a></li>
+						<ul id="listTabName">
+							<li class="tab active"><a onclick="selectTab(this.parentNode)">Main chat</a></li>
 						</ul>
-						<div class="tab_cont">
-							<div id="tab1" class="cont current">							
+						<div id="listTabContent" class="tabContent">
+							<div class="cont current">							
 								<p><b>John Smith: </b>Lets go to the cinema this friday</p>							
 								<p><b>Annabel Stone: </b>I can't. I'm sick</p>							
 								<p><b>John Smith: </b>Oh, can I help you?</p>
 							</div>
-							<div id="tab2" class="cont">
-								
-							</div>
+							
 						</div>
 					</div>
 					<div class="message">
@@ -82,6 +85,6 @@
 		</div>
 	</div>
 
-	
+	<script src="js/main.js"></script>
 </body>
 </html>
