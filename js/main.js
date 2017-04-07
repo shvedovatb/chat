@@ -1,54 +1,109 @@
 "use strict";
+const URL_USERS='https://main-workspace-juggerr.c9users.io:8081/user';
+const URL_MESSAGES='https://main-workspace-juggerr.c9users.io:8081/messages';
+var myId;
+var users;
+//const URL_USERS='http://192.168.31.17:8081/user';
+//const URL_MESSAGES='http://192.168.31.17:8081/messages';
 
-const URL_USERS='http://mockbin.com/bin/b23dd106-4ac5-431f-baea-600457e4e834';
-const URL_MESSAGES='http://mockbin.com/bin/a61c099a-74a5-43a4-865b-0f723572a381';
-//получение пользователей с сервера
-function getUsers() {	
-	var request = new XMLHttpRequest();
-	request.open('GET', URL_USERS, true);
-	request.send();
-	request.onload = function() {
-	    if (request.status >= 200 && request.status < 400) {
-		    // Обработчик успешного ответа
-		    var response;
-		    response = request.responseText;
-  			usersData(response);
-  		} else {
-	    // Обработчик ответа в случае ошибки
-		}
-	};
+function getRequestP(url) {
+  return new Promise(function(resolve, reject) {
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', url, true);
+    xhr.onload = function() {
+      if (this.status == 200) {
+        resolve(this.response);
+      } else {
+        reject(this.response);
+      }
+    };
+    xhr.onerror = function() {
+      reject(new Error("Network Error"));
+    };
+    xhr.send();
+  });
 }
-//получение сообщений с сервера
-function getMessages() {
-	var requestMes = new XMLHttpRequest();
-	requestMes.open('GET', URL_MESSAGES, true);
-	requestMes.send();
-	requestMes.onload = function() {
-		var responseMes;
-		responseMes = requestMes.responseText;
-		var requestUs = new XMLHttpRequest();
-		requestUs.open('GET', URL_USERS, true);
-		requestUs.send();
-		requestUs.onload = function() {
-			var responseUs;
-			responseUs = requestUs.responseText;
-			messagesData(responseMes, responseUs);
-		}
-	}
+function postRequestP(url, body) {
+  return new Promise(function(resolve, reject) {
+    var xhr = new XMLHttpRequest();
+    xhr.open('POST', url, true);
+    xhr.setRequestHeader('Content-Type', 'application/json');
+    xhr.onload = function() {
+      if (this.status == 200) {
+        resolve(this.response);
+      } else {
+        reject(this.response);
+      }
+    };
+    xhr.onerror = function() {
+      reject(new Error("Network Error"));
+    };
+    xhr.send(body);
+  });
+}
+
+function postRequest(url, body) {
+	var request = new XMLHttpRequest();
+	request.open("POST", url, true);
+	request.setRequestHeader('Content-Type', 'application/json');
+
+	request.onreadystatechange = function () {
+	    if (this.readyState != 4) return;
+
+	    if (this.status == 200 || this.status == 201) {
+	        var data = JSON.parse(this.responseText);
+	        console.log(data);
+	    }
+	    else {
+	    	var error = JSON.parse(this.responseText);
+	    	console.log(error);
+	    }
+	};
+	request.send(body);
+}
+
+function sendMessage() {	
+	var input = document.getElementById('messageInput')
+	var text = input.value;
+	if (text=='') return;
+	var timeMes = new Date();
+	var author = document.getElementById('myName').value;
+	var body = JSON.stringify({
+			"datetime": timeMes.toISOString(), 
+	        "message": text, 
+	        "user_id": author
+		});
+	postRequestP(URL_MESSAGES, body);
+	/*var content = document.querySelectorAll('.current')[0];
+	content.insertAdjacentHTML("beforeEnd", "<p><b>"+author+": </b>"+text+"</p>");*/
+	input.value = "";
+	document.getElementById('chars').innerHTML='0';
+	document.getElementById('letters').innerHTML='0';
+	document.getElementById('spaces').innerHTML='0';
+	document.getElementById('puncts').innerHTML='0';
+}
+function sendUser()  {
+	var author = document.getElementById('myName').value;
+	var url = URL_USERS+'/register';
+	var body = JSON.stringify({"username": author});
+	postRequestP(url, body);
 }
 
 //вывод сообщений на страницу
 function messagesData(dataMes, dataUs) {
+	/*var dataMes = data[0];
+	var dataUs = data[1];*/
 	var content = document.getElementById("listTabContent").getElementsByTagName('div')[0];
 	content.innerHTML = "";
 	JSON.parse(dataMes).forEach(
 		function (obj1) {					
-			JSON.parse(dataUs).forEach(
+			dataUs.forEach(
 				function (obj2) {
-					if (obj1.user==obj2.user_id){
-						
+					if (obj1.user_id==obj2.user_id){						
 						var p = document.createElement('p');
-						p.innerHTML = `<b>${obj2.username}:</b> ${obj1.message}` 
+						var ms = new Date(obj1.datetime);
+						var timeMes = checkTime(ms.getHours()) + ':' + checkTime(ms.getMinutes()) + ':' + checkTime(ms.getSeconds());
+						p.innerHTML = `<u>${timeMes} </u><b>${obj2.username}:</b> ${obj1.message}` 
 						content.appendChild(p);
 					}							
 				}
@@ -60,7 +115,8 @@ function messagesData(dataMes, dataUs) {
 function usersData(date) {
 	var ul = document.getElementById('companions');
 	ul.innerHTML = "";
-	JSON.parse(date).forEach(
+	users = JSON.parse(date);
+	users.forEach(
 		function (obj) {		
 			var li = document.createElement('li');
 			var a = document.createElement('a');
@@ -85,7 +141,7 @@ function currentTime() {
 	var hours=locTime.getHours();
 	var minutes=locTime.getMinutes();
 	minutes=checkTime(minutes);
-	var currentStr='Your local time is: '+hours+"h "+minutes+'m';
+	var currentStr='Your local time is: '+hours+'h '+minutes+'m';
 	return currentStr;
 }
 /*Вычисление времени пользователя в чате*/
@@ -113,22 +169,7 @@ function counter(string, reg) {
 	return count;
 }
 /*Отправка сообщения*/
-function sendMessage() {	
-	var input = document.getElementById('messageInput')
-	var text = input.value;
-	if (text=='') return;
-	var author = document.getElementById('myName').value;
-	if (!author) {
-		author = 'MySelf';
-	}
-	var content = document.querySelectorAll('.current')[0];
-	content.insertAdjacentHTML("beforeEnd", "<p><b>"+author+": </b>"+text+"</p>");
-	input.value = "";
-	document.getElementById('chars').innerHTML='0';
-	document.getElementById('letters').innerHTML='0';
-	document.getElementById('spaces').innerHTML='0';
-	document.getElementById('puncts').innerHTML='0';
-}
+
 /*Добавление вкладки при клике по пользователю*/
 function newTabAdd(name) {
 	var tabNames = document.getElementById('listTabName');
@@ -212,10 +253,25 @@ function tagAdd(obj, str1, str2) {
 var startTime = new Date();
 window.onload = function(){	
 	outputMyTime();	
-	setInterval('getUsers()', 1000);
+
+	setInterval(function(){getRequestP(URL_USERS).then(
+			    result => {usersData(result);},
+			    error => {console.log("Rejected: " + error);}
+				).then(
+				mes => {return getRequestP(URL_MESSAGES);},
+				error => {console.log("Rejected: " + error);}
+				).then(
+				result => {messagesData(result, users);},
+			    error => {console.log("Rejected: " + error);}
+				);}, 2000);
+
+	//setInterval('getUsers(usersData, URL_USERS)', 5000);
 	document.getElementById('mainChat').addEventListener('click', function(){selectTab(this.parentNode)});
+	document.getElementsByName('sendUser')[0].addEventListener('click', sendUser);
 	companionsOnline();
-	setInterval('getMessages()', 2000);
+	//getMessages();
+	//setInterval('getMessages()', 1000);
+
 };
 var msgInput = document.getElementById('messageInput')
 document.getElementById('bold').onclick=function(){
@@ -234,6 +290,7 @@ document.getElementById('link').onclick=function(){
 document.getElementsByName('sendMessage')[0].onclick = sendMessage;
 
 msgInput.oninput = function () {
+
 	var string=this.value;
 	var regLetters=/[a-zA-Z0-9а-яА-ЯёЁ']/g;
 	var regSpaces=/\s/g;
